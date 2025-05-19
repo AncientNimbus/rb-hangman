@@ -75,6 +75,15 @@ module FileUtils
       end
     end
 
+    def lookup_line(filepath, line_num)
+      return puts "File not found: #{filepath}" unless File.exist?(filepath)
+
+      File.open(filepath, "r") do |textfile|
+        lines = textfile.readlines(chomp: true)
+        lines[line_num]
+      end
+    end
+
     # Writes the given data to a file in YAML or JSON format.
     # @param filepath [String] The base path of the file to write (extension is added automatically).
     # @param data [Object] The data to serialize and write.

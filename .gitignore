@@ -1,2 +1,4 @@
 .yardoc/*
 doc/*
+data/*.yaml
+data/*.json

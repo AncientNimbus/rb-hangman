@@ -22,51 +22,101 @@ class Hangman
   def initialize(dict_path: FUS.assets_path("dictionary.txt"))
     @dict_path = dict_path
     @p1 = Player.new(mode: :standard)
-    # game_loop
     init_game
-    test
   end
 
-  # @version 0.1.4
-  # @version 1.0.0
+  # @since 0.1.4
+  # @version 1.1.0
   def init_game
     # mode selection
     @active_session = create_session
-    p active_session
+    # p active_session
     p1.save_game(active_session)
+    game_loop
   end
 
-  # @version 0.1.4
+  # @since 0.1.4
   # @version 1.0.0
   def create_session
-    guess_word = FUS.random_word(@dict_path)
+    guess_word = FUS.random_word(dict_path)
     p guess_word
     { id: p1.session_counts += 1, word_id: guess_word[:id],
       remaining_lives: MODE[p1.mode], state: Array.new(guess_word[:word].size, "_"),
       status: :active, win?: false }
   end
 
-  def game_loop
-    round = 6
+  def game_display(as, lives, idx)
+    # display lives
+    puts "#{lives} live#{'s' if lives - idx > 1} remaining"
+    # display blanks
+    puts as[:state].join(" ")
+    # display gallows
+  end
 
-    round.times do |idx|
-      puts "#{round - idx} round#{'s' if round - idx >= 1}"
-      test
-      gets
+  # @since 0.1.5
+  # @version 1.0.0
+  def game_loop
+    as = active_session
+    lives = as[:remaining_lives]
+
+    secret_word = lookup_word(as[:word_id], as[:state].size)
+
+    idx = 0
+    game_display(as, lives, idx)
+    until as[:win?] || lives <= 0
+      # get user input + input check
+      guess = gets.chomp
+
+      # validate result
+      p secret_word
+      char_in_word = guess.match?(/\b[#{secret_word}]\b/)
+      lives -= 1 unless char_in_word
+
+      char_idx = 0
+
+      # update display for next print
+      secret_word.each_char do |char|
+        as[:state][char_idx] = guess if guess == char
+        # p char, idx
+        char_idx += 1
+      end
+
+      # Check result
+      as[:win?] = as[:state].include?("_") ? false : true
+
+      # save session
+      as[:remaining_lives] = lives
+      p1.save_game(active_session)
+
+      # update display
+      game_display(as, lives, idx)
+
     end
+    announce_result
+  end
+
+  def announce_result
+    puts active_session[:win?] ? "Win" : "lose"
+    active_session[:status] = :ended
+    p1.save_game(active_session)
   end
 
   private
 
-  def test
-    # puts FileUtils.random_word(dict_path)
-    # p1.load_save
-    # p1.save_game(test_session)
-    # p p1.session_counts
-    # p p1.sessions[-1][:id] = 100
-    # p p1.sessions[-1][:state].fill("_")
-    # p1.save_game(p1.sessions[-1])
+  def lookup_word(word_id, word_char_length)
+    word = FUS.lookup_line(dict_path, word_id)
+    word.length == word_char_length ? word : "Error"
   end
+
+  # def test
+  #   # puts FileUtils.random_word(dict_path)
+  #   # p1.load_save
+  #   # p1.save_game(test_session)
+  #   # p p1.session_counts
+  #   # p p1.sessions[-1][:id] = 100
+  #   # p p1.sessions[-1][:state].fill("_")
+  #   # p1.save_game(p1.sessions[-1])
+  # end
 end
 
 # @todo resume game state from load save
