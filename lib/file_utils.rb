@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "yaml"
 # Helper module for file operations
 # @author Ancient Nimbus
 # @since 0.1.1
@@ -31,14 +32,14 @@ module FileUtils
     # @param output_path [String] Path to the output file.
     # @param min_char [Integer] Minimum word length (default: 5).
     # @param max_char [Integer] Maximum word length (default: 12).
-    # @version 1.0.1
+    # @version 1.0.2
     def text_filter(input_path, output_path, min_char: 5, max_char: 12)
       return puts "File not found: #{filepath}" unless File.exist?(input_path)
 
       File.open(input_path, "r") do |input|
         File.open(output_path, "w") do |output|
           input.each_line(chomp: true) do |word|
-            output.puts word if [*min_char..max_char].include?(word.size)
+            output.puts word.downcase if [*min_char..max_char].include?(word.size)
           end
         end
       end
@@ -62,5 +63,18 @@ module FileUtils
         return { idx => word }
       end
     end
+
+    def write_savefile(filepath, data, format: "yaml")
+      File.open(filepath, "w") do |output|
+        output.puts data.to_yaml if format == "yaml"
+      end
+    end
   end
 end
+
+test_data = { saved_date: Time.now.ceil, name: "Sean Bean", hangman_data: {
+  mode: "standard",
+  game1: { word_id: 123, remaining_lives: 3, state: ["a", "", "", "", "e"] },
+  game2: { word_id: 456, remaining_lives: 5, state: ["", "o", "a", "", ""] }
+} }
+FileUtils.write_savefile(FileUtils.data_path("#{test_data[:name]}.yaml"), test_data)
