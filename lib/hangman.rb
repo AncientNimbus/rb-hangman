@@ -13,8 +13,8 @@ require_relative "cli_helper"
 class Hangman
   include FUS
 
-  attr_accessor :active_session
-  attr_reader :dict_path, :p1
+  attr_accessor :active_session, :lives
+  attr_reader :dict_path, :p1, :secret_word_obj, :secret_word
 
   # Game mode configurations
   MODE = { easy: 7, standard: 6, hard: 5 }.freeze
@@ -26,75 +26,87 @@ class Hangman
   end
 
   # @since 0.1.4
+  # @version 1.0.1
+  def create_session
+    @secret_word_obj = FUS.random_word(dict_path)
+    p secret_word_obj
+    { id: p1.session_counts += 1, word_id: secret_word_obj[:id],
+      remaining_lives: MODE[p1.mode], state: Array.new(secret_word_obj[:word].size, "_"),
+      status: :active, win?: false }
+  end
+
+  # @since 0.1.4
   # @version 1.1.0
   def init_game
     # mode selection
     @active_session = create_session
-    # p active_session
+    @lives = active_session[:remaining_lives]
+    @secret_word = secret_word_obj[:word]
     p1.save_game(active_session)
+
+    # Initial display
+    print_session
+    # Enter game loop
     game_loop
   end
 
-  # @since 0.1.4
+  # @since 0.1.6
   # @version 1.0.0
-  def create_session
-    guess_word = FUS.random_word(dict_path)
-    p guess_word
-    { id: p1.session_counts += 1, word_id: guess_word[:id],
-      remaining_lives: MODE[p1.mode], state: Array.new(guess_word[:word].size, "_"),
-      status: :active, win?: false }
-  end
-
-  def game_display(as, lives, idx)
-    # display lives
-    puts "#{lives} live#{'s' if lives - idx > 1} remaining"
+  def print_session
+    puts secret_word
     # display blanks
-    puts as[:state].join(" ")
+    puts active_session[:state].join(" ")
     # display gallows
+    print_gallows
+    # display lives
+    puts "#{lives} live#{'s' if lives > 1} remaining"
   end
 
-  # @since 0.1.5
-  # @version 1.0.0
+  def print_gallows
+    puts "Will print hangman stage: #{MODE[p1.mode] - lives}"
+  end
+
+  # @since 0.1.6
+  # @version 1.0.2
   def game_loop
-    as = active_session
-    lives = as[:remaining_lives]
-
-    secret_word = lookup_word(as[:word_id], as[:state].size)
-
-    idx = 0
-    game_display(as, lives, idx)
-    until as[:win?] || lives <= 0
+    until active_session[:win?] || lives <= 0
       # get user input + input check
       guess = gets.chomp
-
       # validate result
-      p secret_word
-      char_in_word = guess.match?(/\b[#{secret_word}]\b/)
-      lives -= 1 unless char_in_word
-
-      char_idx = 0
-
-      # update display for next print
-      secret_word.each_char do |char|
-        as[:state][char_idx] = guess if guess == char
-        # p char, idx
-        char_idx += 1
-      end
-
-      # Check result
-      as[:win?] = as[:state].include?("_") ? false : true
-
+      self.lives -= 1 unless matching_character?(guess)
+      # update session data
+      update_session(guess)
       # save session
-      as[:remaining_lives] = lives
       p1.save_game(active_session)
-
       # update display
-      game_display(as, lives, idx)
-
+      print_session
     end
     announce_result
   end
 
+  # @since 0.1.6
+  # @version 1.0.0
+  def update_session(guess)
+    # Update game state
+    char_idx = 0
+    secret_word.each_char do |char|
+      active_session[:state][char_idx] = guess if guess == char
+      char_idx += 1
+    end
+    # Update remaining lives
+    active_session[:remaining_lives] = lives
+    # Check result
+    active_session[:win?] = active_session[:state].include?("_") ? false : true
+  end
+
+  # @since 0.1.6
+  # @version 1.0.0
+  def matching_character?(guess)
+    guess.match?(/\b[#{secret_word}]\b/)
+  end
+
+  # @since 0.1.6
+  # @version 1.0.0
   def announce_result
     puts active_session[:win?] ? "Win" : "lose"
     active_session[:status] = :ended
@@ -103,20 +115,12 @@ class Hangman
 
   private
 
+  # @since 0.1.5
+  # @version 1.0.0
   def lookup_word(word_id, word_char_length)
     word = FUS.lookup_line(dict_path, word_id)
     word.length == word_char_length ? word : "Error"
   end
-
-  # def test
-  #   # puts FileUtils.random_word(dict_path)
-  #   # p1.load_save
-  #   # p1.save_game(test_session)
-  #   # p p1.session_counts
-  #   # p p1.sessions[-1][:id] = 100
-  #   # p p1.sessions[-1][:state].fill("_")
-  #   # p1.save_game(p1.sessions[-1])
-  # end
 end
 
 # @todo resume game state from load save

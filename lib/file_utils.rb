@@ -75,6 +75,8 @@ module FileUtils
       end
     end
 
+    # @since 0.1.5
+    # @version 1.0.0
     def lookup_line(filepath, line_num)
       return puts "File not found: #{filepath}" unless File.exist?(filepath)
 
