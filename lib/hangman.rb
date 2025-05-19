@@ -11,15 +11,39 @@ require_relative "cli_helper"
 # @since 0.1.0
 # @version 1.0.2
 class Hangman
-  include FileUtils
+  include FUS
 
+  attr_accessor :active_session
   attr_reader :dict_path, :p1
 
-  def initialize(dict_path: FileUtils.assets_path("dictionary.txt"))
+  # Game mode configurations
+  MODE = { easy: 7, standard: 6, hard: 5 }.freeze
+
+  def initialize(dict_path: FUS.assets_path("dictionary.txt"))
     @dict_path = dict_path
-    @p1 = Player.new
+    @p1 = Player.new(mode: :standard)
     # game_loop
+    init_game
     test
+  end
+
+  # @version 0.1.4
+  # @version 1.0.0
+  def init_game
+    # mode selection
+    @active_session = create_session
+    p active_session
+    p1.save_game(active_session)
+  end
+
+  # @version 0.1.4
+  # @version 1.0.0
+  def create_session
+    guess_word = FUS.random_word(@dict_path)
+    p guess_word
+    { id: p1.session_counts += 1, word_id: guess_word[:id],
+      remaining_lives: MODE[p1.mode], state: Array.new(guess_word[:word].size, "_"),
+      status: :active, win?: false }
   end
 
   def game_loop
@@ -36,7 +60,12 @@ class Hangman
 
   def test
     # puts FileUtils.random_word(dict_path)
-    puts p1.resume_session
+    # p1.load_save
+    # p1.save_game(test_session)
+    # p p1.session_counts
+    # p p1.sessions[-1][:id] = 100
+    # p p1.sessions[-1][:state].fill("_")
+    # p1.save_game(p1.sessions[-1])
   end
 end
 

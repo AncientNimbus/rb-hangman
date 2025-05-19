@@ -61,9 +61,9 @@ module FileUtils
     # Prints an error if the file does not exist.
     #
     # @param filepath [String] the path to the file containing words
-    # @return [Hash{Integer => String}, nil] hash of index and word, or nil if file not found
+    # @return [Hash, nil] hash of index and word, or nil if file not found
     # @since 0.1.2
-    # @version 1.0.0
+    # @version 1.1.0
     def random_word(filepath)
       return puts "File not found: #{filepath}" unless File.exist?(filepath)
 
@@ -71,7 +71,7 @@ module FileUtils
         lines = textfile.readlines(chomp: true)
         word = lines.sample
         idx = lines.index(word)
-        return { idx => word }
+        return { id: idx, word: word }
       end
     end
 
@@ -126,3 +126,6 @@ module FileUtils
     end
   end
 end
+
+# Alias to FileUtils helper module
+FUS = FileUtils

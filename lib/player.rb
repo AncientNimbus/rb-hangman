@@ -1,42 +1,61 @@
 # frozen_string_literal: true
 
 require_relative "file_utils"
-FUS = FileUtils
+
 # Player class
-# @version 1.0.1
+# @version 1.0.2
 class Player
   include FUS
 
-  attr_accessor :name, :savefile
+  attr_accessor :name, :mode, :savefile, :sessions, :session_counts
 
-  def initialize(name: "Spock")
+  def initialize(name: "Spock", mode: :standard)
     @name = name
+    @mode = mode
     new_save
+    @sessions = @savefile.dig(:hangman_data, :sessions)
+    @session_counts = sessions.size
   end
 
   # @since 0.1.1
-  # @version 1.1.0
+  # @version 1.1.1
   def new_save
-    @savefile = { saved_date: Time.now.ceil, name: name, hangman_data: {
-      mode: "standard", sessions: [
-        { id: 1, word_id: 123, remaining_lives: 3, state: %w[a _ p l e], status: :ended, win?: true },
-        { id: 2, word_id: 456, remaining_lives: 0, state: %w[_ o a _ _], status: :ended, win?: false },
-        { id: 3, word_id: 789, remaining_lives: 5, state: %w[_ o a _ _], status: :active, win?: false }
-      ]
-    } }
-    FUS.write_savefile(FUS.data_path(name), savefile)
+    @savefile = { saved_date: Time.now.ceil, name: @name, hangman_data: { mode: @mode, sessions: [] } }
+    overwrite_save
   end
 
+  # Write game save to disk
+  # @since 0.1.4
+  # @version 1.0.0
+  def overwrite_save
+    FUS.write_savefile(FUS.data_path(@name), @savefile)
+  end
+
+  # Load save from player's disk
+  # @since 0.1.4
+  # @version 1.0.0
+  def load_save
+    @savefile = FUS.load_savefile(FUS.data_path("spock_dup"))
+  end
+
+  # Add latest session to savefile and store game save to disk
+  # @since 0.1.4
+  # @version 1.0.1
   def save_game(session_obj)
-    savefile[:hangman_data].store(:"game#{}")
+    @sessions.push(session_obj)
+    overwrite_save
   end
-
-  def load_game; end
 
   # Find the latest session
   # @since 0.1.3
-  # @version 1.0.0
+  # @version 1.0.1
   def resume_session
-    savefile.dig(:hangman_data, :sessions).bsearch { |game| game[:status] == :active }
+    @sessions.bsearch { |game| game[:status] == :active }
   end
+
+  # # @since 0.1.4
+  # # @version 1.0.0
+  # def session_counts
+  #   @sessions.size
+  # end
 end
