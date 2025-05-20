@@ -12,6 +12,7 @@ en:
   error:
     file_not_found: "Error! File not found."
     cmd_not_found: "I don't understand '%{command}'. Try '--help' for available commands."
+    app_running: "App is already running, command cancelled!"
   commands:
     exit:
       - exit
@@ -31,3 +32,7 @@ en:
     input_prefix: "> "
     prompt: "Enter your input..."
     invalid_warning: "Invalid input! Please try again!"
+  hangman:
+    guess:
+      msg: "Enter one character between a-z"
+      reg: '\A[a-z]\z'

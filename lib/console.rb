@@ -10,11 +10,12 @@ require_relative "hangman"
 # @since 0.1.7
 # @version 1.2.0
 class Console
-  attr_accessor :app_running, :game
+  attr_accessor :cli_running, :app_running, :app
   attr_reader :commands
 
   def initialize
-    @app_running = true
+    @cli_running = true
+    @app_running = false
     @commands = {
       exit: method(:quit), quit: method(:quit), ttfn: method(:quit),
       help: method(:show_help),
@@ -29,7 +30,7 @@ class Console
   def run
     puts t("welcome.greeting").colorize(:green)
     # process_input(user_input, regexp_on: true, reg: /\A[1-2]\z/) regex ver
-    process_input(user_input) while app_running
+    process_input(user_input) while cli_running
   end
 
   # Shorthand for FUS.t() method
@@ -48,18 +49,24 @@ class Console
     gets.chomp
   end
 
-  # param input [String]
+  # Processes user input, determining if it is a command, a regular expression, or plain input.
+  #
+  # @param input [String] The user input to process.
+  # @param regexp_on [Boolean] Whether to process the input as a regular expression. Defaults to false.
+  # @param reg [Regexp] The regular expression to use if regexp_on is true. Defaults to /.*/.
+  # @return [Object] The result of processing the command, the result of processing the regular expression,
+  #   or the original input string.
   # @since 0.1.8
-  # @version 1.1.0
-  def process_input(input, regexp_on: false, reg: /.*/)
+  # @version 1.2.0
+  def process_input(input, use_reg: false, reg: /.*/, invalid_msg: t("console.invalid_warning"))
     is_command = input[0..1] == "--"
     parts = input.split(" ")
 
     if is_command
       args = parts[1..] || []
       process_command(parts[0], args)
-    elsif regexp_on
-      process_regexp(input, reg)
+    elsif use_reg
+      process_regexp(input, reg, invalid_msg)
     else
       input
     end
@@ -74,11 +81,11 @@ class Console
   end
 
   # @since 0.1.9
-  # @version 1.0.0
-  def process_regexp(input, reg)
+  # @version 1.1.0
+  def process_regexp(input, reg, invalid_msg = t("console.invalid_warning"))
     until input.match?(reg) && !input.empty?
       # puts "User has entered: #{input}"
-      input = process_input(user_input(t("console.invalid_warning"))) # print on second entry
+      input = process_input(user_input(invalid_msg)) # print on second entry
     end
     input
   end
@@ -113,9 +120,12 @@ class Console
 
   # Launch a program
   # @since 0.1.8
-  # @version 1.0.0
+  # @version 1.0.1
   def play(args = [])
-    @game = Hangman.new(self) if args.include?("hangman")
+    puts t("error.app_running").colorize(:red) if app_running
+
+    @app = Hangman.new(self) if args.include?("hangman")
+    self.app_running = false
   end
 
   # @since 0.1.8
