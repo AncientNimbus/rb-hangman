@@ -32,7 +32,14 @@ en:
     input_prefix: "> "
     prompt: "Enter your input..."
     invalid_warning: "Invalid input! Please try again!"
-  hangman:
+  # hangman
+  hm:
     guess:
       msg: "Enter one character between a-z"
       reg: '\A[a-z]\z'
+    same_char_warning: "You have already guessed this character, please pick another one."
+    win: "You have managed guessed the word, you are spared... Lucky You! 🕊️"
+    lose: "The correct word is '%{word}'. Sadly you are out of moves, OFF WITH YOUR HEAD! 💀"
+    next_game:
+      msg: "The executioner is generous today, would you like to try again?"
+      reg: '\Ayes|no\z'

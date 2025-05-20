@@ -30,7 +30,6 @@ class Console
   # @version 1.0.0
   def run
     puts t("welcome.greeting").colorize(:green)
-    # process_input(user_input, regexp_on: true, reg: /\A[1-2]\z/) regex ver
     process_input("--play hangman") while cli_running
   end
 
@@ -87,8 +86,15 @@ class Console
     until input.match?(reg) && !input.empty?
       input = process_input(user_input(input_is_cmd ? "" : invalid_msg)) # print on second entry
     end
-
     input
+  end
+
+  # @since 0.2.2
+  # @version 1.0.0
+  def restart(_args = [])
+    return unless app_running
+
+    process_input(user_input(t("hm.next_game.msg")), use_reg: true, reg: t("hm.next_game.reg", prefix: "")) == "yes"
   end
 
   private
@@ -128,8 +134,4 @@ class Console
     @app = Hangman.new(self) if args.include?("hangman")
     self.app_running = false
   end
-
-  # @since 0.1.8
-  # @version 1.0.0
-  def restart(args = []); end
 end

@@ -13,7 +13,7 @@ require_relative "cli_helper"
 class Hangman
   include FUS
 
-  attr_accessor :active_session, :lives
+  attr_accessor :active_session, :lives, :new_char, :prev_char
   attr_reader :cli, :dict_path, :p1, :load_save, :secret_word_obj, :secret_word
 
   # Game mode configurations
@@ -43,6 +43,8 @@ class Hangman
     @active_session = load_save ? p1.load_save : create_session
     @lives = active_session[:remaining_lives]
     @secret_word = secret_word_obj[:word]
+    @prev_char = ""
+    @new_char = ""
 
     p1.save_game(active_session)
 
@@ -53,9 +55,10 @@ class Hangman
   end
 
   # @since 0.1.6
-  # @version 1.0.0
+  # @version 1.1.0
   def print_session
     puts secret_word
+    puts
     # display blanks
     puts active_session[:state].join(" ")
     # display gallows
@@ -69,17 +72,21 @@ class Hangman
   end
 
   # @since 0.2.0
-  # @version 1.0.0
+  # @version 1.1.0
   def make_guess
-    cli.process_input(cli.user_input(FUS.t("hangman.guess.msg")), use_reg: true, reg: FUS.t("hangman.guess.reg"))
+    self.new_char = cli.process_input(cli.user_input(cli.t("hm.guess.msg")),
+                                      use_reg: true, reg: cli.t("hm.guess.reg", prefix: ""))
+    puts cli.t("hm.same_char_warning") if new_char == prev_char
+    new_char
   end
 
   # @since 0.1.6
-  # @version 1.2.0
+  # @version 1.3.0
   def game_loop
     until active_session[:win?] || lives <= 0
       # get user input + input check
       guess = make_guess
+      self.prev_char = new_char
       # validate result
       self.lives -= 1 unless matching_character?(guess)
       # update session data
@@ -114,25 +121,21 @@ class Hangman
   end
 
   # @since 0.1.6
-  # @version 1.0.0
+  # @version 1.1.0
   def announce_result
-    puts active_session[:win?] ? "Win" : "lose"
+    puts active_session[:win?] ? cli.t("hm.win").colorize(:green) : cli.t("hm.lose",
+                                                                          { word: secret_word }).colorize(:red)
     active_session[:status] = :ended
     p1.save_game(active_session)
-    # restart # @todo user prompt
+
+    next_game
   end
 
-  # @since 0.1.7
+  # @since 0.2.2
   # @version 1.0.0
-  def restart; end
-
-  private
-
-  # @since 0.1.5
-  # @version 1.0.0
-  def lookup_word(word_id, word_char_length)
-    word = FUS.lookup_line(dict_path, word_id)
-    word.length == word_char_length ? word : "Error"
+  def next_game
+    input = cli.restart
+    p input
   end
 end
 
@@ -141,8 +144,6 @@ end
 # @todo option to save file
 # @todo auto save toggle
 # @todo game mode selection
-# @todo core game loop
-# @todo CLI input handling
 # @todo CLI command handling
 # @todo CLI user experience
 # @todo CLI display game state
