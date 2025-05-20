@@ -34,8 +34,13 @@ en:
     invalid_warning: "Invalid input! Please try again!"
   # hangman
   hm:
+    p_name: "Who will be next on the gallows?"
+    mode:
+      msg: "Select [1] for Easy, [2] for standard, and [3] for hard"
+      err: "Invalid input! Enter a number between 1-3."
+      reg: '\A[1-3]\z'
     guess:
-      msg: "Enter one character between a-z"
+      msg: "Enter one character between a-z."
       reg: '\A[a-z]\z'
     same_char_warning: "You have already guessed this character, please pick another one."
     win: "You have managed guessed the word, you are spared... Lucky You! 🕊️"

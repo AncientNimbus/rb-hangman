@@ -17,13 +17,18 @@ class Hangman
   attr_reader :cli, :dict_path, :p1, :load_save, :secret_word_obj, :secret_word
 
   # Game mode configurations
-  MODE = { easy: 7, standard: 6, hard: 5 }.freeze
+  MODE = [7, 6, 5].freeze
+  # MODE = { easy: 7, standard: 6, hard: 5 }.freeze
 
   def initialize(console, dict_path: FUS.assets_path("dictionary.txt"))
     @cli = console
     cli.app_running = true
     @dict_path = dict_path
-    @p1 = Player.new(mode: :standard) # @todo user prompt
+    # @p1 = Player.new(mode: :standard)
+    @p1 = Player.new(mode: MODE[cli.process_input(
+      cli.user_input(cli.t("hm.mode.msg")), use_reg: true, reg: cli.t("hm.mode.reg", prefix: "")
+    ).to_i - 1], name: cli.user_input(cli.t("hm.p_name")))
+
     @load_save = false # @todo user prompt
     init_game
   end
@@ -33,7 +38,7 @@ class Hangman
   def create_session
     @secret_word_obj = FUS.random_word(dict_path)
     { id: p1.session_counts += 1, status: :active, win?: false, word_id: secret_word_obj[:id],
-      remaining_lives: MODE[p1.mode], state: Array.new(secret_word_obj[:word].size, "_") }
+      remaining_lives: p1.mode, state: Array.new(secret_word_obj[:word].size, "_") }
   end
 
   # @since 0.1.4
@@ -68,7 +73,7 @@ class Hangman
   end
 
   def print_gallows
-    puts "Will print hangman stage: #{MODE[p1.mode] - lives}"
+    puts "Will print hangman stage: #{p1.mode - lives}"
   end
 
   # @since 0.2.0
