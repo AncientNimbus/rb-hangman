@@ -157,12 +157,21 @@ module FileUtils
       result || "Missing string: #{key_path}"
     end
 
-    # Shortcut to run the get method above.
-    # @param key_path [String] e.g., "welcome.greeting"
+    # Translates a string by key and replaces placeholders with provided values.
+    # @param key_path [String] the translation key path e.g., "welcome.greeting"
+    # @param swaps [Hash] placeholders and their replacement values
+    # @param locale [String] the locale to use (default: "en")
+    # @return [String] the translated and interpolated string
     # @since 0.1.7
-    # @version 1.0.0
-    def t(key_path, locale: "en")
-      get(key_path, locale: locale)
+    # @version 1.1.0
+    def t(key_path, swaps = {}, locale: "en")
+      string = get(key_path, locale: locale)
+
+      swaps.each do |key, value|
+        string = string.gsub(/%\{#{key}\}/, value.to_s)
+      end
+
+      string
     end
   end
 end
