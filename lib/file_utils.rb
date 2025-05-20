@@ -89,14 +89,14 @@ module FileUtils
     # Writes the given data to a file in YAML or JSON format.
     # @param filepath [String] The base path of the file to write (extension is added automatically).
     # @param data [Object] The data to serialize and write.
-    # @param format [Symbol] The format to use (:yaml or :json). Defaults to :yaml.
+    # @param format [Symbol] The format to use (:yml or :json). Defaults to :yml.
     # @since 0.1.3
-    # @version 1.1.0
-    def write_savefile(filepath, data, format: :yaml)
+    # @version 1.2.0
+    def write_savefile(filepath, data, format: :yml)
       # @todo error handling
-      filepath += format == :yaml ? ".yaml" : ".json"
+      filepath += format == :yml ? ".yml" : ".json"
       File.open(filepath, "w") do |output|
-        return output.puts data.to_yaml if format == :yaml
+        return output.puts data.to_yaml if format == :yml
         return output.puts data.to_json if format == :json
       end
     end
@@ -105,18 +105,18 @@ module FileUtils
     # @param filepath [String] The base path of the file to write (extension is added automatically).
     # @return [Hash]
     # @since 0.1.3
-    # @version 1.0.0
-    def load_savefile(filepath, format: :yaml)
-      filepath += format == :yaml ? ".yaml" : ".json"
+    # @version 1.1.0
+    def load_file(filepath, format: :yml, symbols: true)
+      filepath += format == :yml ? ".yml" : ".json"
       return puts "File not found: #{filepath}" unless File.exist?(filepath)
 
       File.open(filepath, "r") do |save|
-        data = if format == :yaml
+        data = if format == :yml
                  YAML.safe_load(save, permitted_classes: [Time, Symbol], aliases: true, freeze: true)
                else
                  JSON.parse(save.read)
                end
-        return to_symbols(data)
+        return symbols ? to_symbols(data) : data
       end
     end
 
@@ -134,6 +134,35 @@ module FileUtils
       else
         obj
       end
+    end
+
+    # Retrieves a localized string by key path from the specified locale file.
+    # Returns a missing message if the locale or key is not found.
+    # @param key_path [String] e.g., "welcome.greeting"
+    # @since 0.1.7
+    # @version 1.0.0
+    def get(key_path, locale: "en")
+      filepath = File.join(proj_root, ".config", "locales", locale)
+      strings = load_file(filepath, symbols: false)
+
+      locale_strings = strings[locale]
+      return "Missing locale: #{locale}" unless locale_strings
+
+      keys = key_path.to_s.split(".")
+
+      result = keys.reduce(locale_strings) do |val, key|
+        val&.[](key)
+      end
+
+      result || "Missing string: #{key_path}"
+    end
+
+    # Shortcut to run the get method above.
+    # @param key_path [String] e.g., "welcome.greeting"
+    # @since 0.1.7
+    # @version 1.0.0
+    def t(key_path, locale: "en")
+      get(key_path, locale: locale)
     end
   end
 end

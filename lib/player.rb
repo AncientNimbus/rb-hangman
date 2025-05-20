@@ -35,7 +35,7 @@ class Player
   # @since 0.1.4
   # @version 1.0.1
   def load_save
-    self.savefile = FUS.load_savefile(FUS.data_path(name))
+    self.savefile = FUS.load_file(FUS.data_path(name))
   end
 
   # Add latest session to savefile and store game save to disk

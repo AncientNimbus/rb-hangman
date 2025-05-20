@@ -14,34 +14,34 @@ class Hangman
   include FUS
 
   attr_accessor :active_session, :lives
-  attr_reader :dict_path, :p1, :secret_word_obj, :secret_word
+  attr_reader :dict_path, :p1, :load_save, :secret_word_obj, :secret_word
 
   # Game mode configurations
   MODE = { easy: 7, standard: 6, hard: 5 }.freeze
 
   def initialize(dict_path: FUS.assets_path("dictionary.txt"))
     @dict_path = dict_path
-    @p1 = Player.new(mode: :standard)
+    @p1 = Player.new(mode: :standard) # @todo user prompt
+    @load_save = false # @todo user prompt
     init_game
   end
 
   # @since 0.1.4
-  # @version 1.0.1
+  # @version 1.0.2
   def create_session
     @secret_word_obj = FUS.random_word(dict_path)
-    p secret_word_obj
-    { id: p1.session_counts += 1, word_id: secret_word_obj[:id],
-      remaining_lives: MODE[p1.mode], state: Array.new(secret_word_obj[:word].size, "_"),
-      status: :active, win?: false }
+    { id: p1.session_counts += 1, status: :active, win?: false, word_id: secret_word_obj[:id],
+      remaining_lives: MODE[p1.mode], state: Array.new(secret_word_obj[:word].size, "_") }
   end
 
   # @since 0.1.4
-  # @version 1.1.0
+  # @version 1.2.0
   def init_game
     # mode selection
-    @active_session = create_session
+    @active_session = load_save ? p1.load_save : create_session
     @lives = active_session[:remaining_lives]
     @secret_word = secret_word_obj[:word]
+
     p1.save_game(active_session)
 
     # Initial display
@@ -71,7 +71,7 @@ class Hangman
   def game_loop
     until active_session[:win?] || lives <= 0
       # get user input + input check
-      guess = gets.chomp
+      guess = gets.chomp # @todo user prompt
       # validate result
       self.lives -= 1 unless matching_character?(guess)
       # update session data
@@ -111,7 +111,12 @@ class Hangman
     puts active_session[:win?] ? "Win" : "lose"
     active_session[:status] = :ended
     p1.save_game(active_session)
+    # restart # @todo user prompt
   end
+
+  # @since 0.1.7
+  # @version 1.0.0
+  def restart; end
 
   private
 

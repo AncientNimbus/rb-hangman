@@ -1,0 +1,21 @@
+en:
+  welcome:
+    greeting: "Welcome to the central command, type 'help' for more commands."
+    intro: "Locale system operational."
+    hello_world: "Hello World!"
+  error:
+    file_not_found: "Error! File not found."
+  commands:
+    exit:
+      - exit
+      - quit
+      - ttfn
+    help: help
+    save: save
+    load: load
+    yes:
+      - yes
+      - y
+    no:
+      - no
+      - n
