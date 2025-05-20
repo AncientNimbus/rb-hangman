@@ -14,12 +14,13 @@ class Hangman
   include FUS
 
   attr_accessor :active_session, :lives
-  attr_reader :dict_path, :p1, :load_save, :secret_word_obj, :secret_word
+  attr_reader :console, :dict_path, :p1, :load_save, :secret_word_obj, :secret_word
 
   # Game mode configurations
   MODE = { easy: 7, standard: 6, hard: 5 }.freeze
 
-  def initialize(dict_path: FUS.assets_path("dictionary.txt"))
+  def initialize(console, dict_path: FUS.assets_path("dictionary.txt"))
+    @console = console
     @dict_path = dict_path
     @p1 = Player.new(mode: :standard) # @todo user prompt
     @load_save = false # @todo user prompt
@@ -67,11 +68,11 @@ class Hangman
   end
 
   # @since 0.1.6
-  # @version 1.0.2
+  # @version 1.1.0
   def game_loop
     until active_session[:win?] || lives <= 0
       # get user input + input check
-      guess = gets.chomp # @todo user prompt
+      guess = console.user_input
       # validate result
       self.lives -= 1 unless matching_character?(guess)
       # update session data
