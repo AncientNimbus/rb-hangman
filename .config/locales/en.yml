@@ -1,7 +1,7 @@
 # Textfile for Hangman CLI
 en:
   welcome:
-    greeting: "Welcome to the central command, type 'help' for more commands."
+    greeting: "Welcome to the central command, type '--help' for more commands."
     intro: "Locale system operational."
     hello_world: "Hello World!"
   help: |
@@ -11,7 +11,7 @@ en:
     bye: "Thank you for playing. 🖖"
   error:
     file_not_found: "Error! File not found."
-    cmd_not_found: "I don't understand '%{command}'. Try 'help' for available commands."
+    cmd_not_found: "I don't understand '%{command}'. Try '--help' for available commands."
   commands:
     exit:
       - exit
@@ -27,4 +27,7 @@ en:
       - no
       - n
   console:
-    prompt_prefix: "> "
+    prompt_prefix: "* "
+    input_prefix: "> "
+    prompt: "Enter your input..."
+    invalid_warning: "Invalid input! Please try again!"
