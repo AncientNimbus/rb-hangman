@@ -10,12 +10,13 @@ require_relative "hangman"
 # @since 0.1.7
 # @version 1.2.0
 class Console
-  attr_accessor :cli_running, :app_running, :app
+  attr_accessor :cli_running, :app_running, :input_is_cmd, :app
   attr_reader :commands
 
   def initialize
     @cli_running = true
     @app_running = false
+    @input_is_cmd = false
     @commands = {
       exit: method(:quit), quit: method(:quit), ttfn: method(:quit),
       help: method(:show_help),
@@ -30,7 +31,7 @@ class Console
   def run
     puts t("welcome.greeting").colorize(:green)
     # process_input(user_input, regexp_on: true, reg: /\A[1-2]\z/) regex ver
-    process_input(user_input) while cli_running
+    process_input("--play hangman") while cli_running
   end
 
   # Shorthand for FUS.t() method
@@ -57,36 +58,36 @@ class Console
   # @return [Object] The result of processing the command, the result of processing the regular expression,
   #   or the original input string.
   # @since 0.1.8
-  # @version 1.2.0
+  # @version 1.3.0
   def process_input(input, use_reg: false, reg: /.*/, invalid_msg: t("console.invalid_warning"))
+    self.input_is_cmd = false
     is_command = input[0..1] == "--"
     parts = input.split(" ")
 
     if is_command
       args = parts[1..] || []
       process_command(parts[0], args)
-    elsif use_reg
-      process_regexp(input, reg, invalid_msg)
-    else
-      input
     end
+
+    use_reg ? process_regexp(input, reg, invalid_msg) : input
   end
 
   # @since 0.1.9
-  # @version 1.0.0
+  # @version 1.1.0
   def process_command(command, args = [])
+    self.input_is_cmd = true
     command = command.downcase.gsub("-", "")
     commands.key?(command) ? commands[command].call(args) : puts(t("error.cmd_not_found", { command: command }))
     command
   end
 
   # @since 0.1.9
-  # @version 1.1.0
+  # @version 1.2.0
   def process_regexp(input, reg, invalid_msg = t("console.invalid_warning"))
     until input.match?(reg) && !input.empty?
-      # puts "User has entered: #{input}"
-      input = process_input(user_input(invalid_msg)) # print on second entry
+      input = process_input(user_input(input_is_cmd ? "" : invalid_msg)) # print on second entry
     end
+
     input
   end
 
@@ -120,9 +121,9 @@ class Console
 
   # Launch a program
   # @since 0.1.8
-  # @version 1.0.1
+  # @version 1.1.0
   def play(args = [])
-    puts t("error.app_running").colorize(:red) if app_running
+    return puts t("error.app_running").colorize(:red) if app_running
 
     @app = Hangman.new(self) if args.include?("hangman")
     self.app_running = false
