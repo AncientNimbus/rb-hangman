@@ -20,9 +20,8 @@ class Console
     @input_is_cmd = false
     @commands = {
       exit: method(:quit), quit: method(:quit), ttfn: method(:quit),
-      help: method(:show_help),
-      save: method(:save_session), load: method(:load_session),
-      play: method(:play), restart: method(:restart)
+      help: method(:show_help), save: method(:save_session),
+      play: method(:play), restart: method(:restart), top: method(:just_for_fun)
     }.transform_keys(&:to_s)
   end
 
@@ -97,7 +96,7 @@ class Console
   # @since 0.2.2
   # @version 1.1.0
   def restart(_args = [])
-    return puts "Game is not running. Command cancelled" unless app_running # TODO: to textfile
+    return puts t("warn.app_not_running") unless app_running
 
     process_input(user_input(t("hm.next_game.msg")), use_reg: true, reg: t("hm.next_game.reg", prefix: "")) == "yes"
   end
@@ -106,7 +105,7 @@ class Console
   # @since 0.2.3
   # @version 1.2.0
   def load_session(_args = [])
-    return puts "Game is not running. Command cancelled" unless app_running # TODO: to textfile
+    return t("warn.app_not_running") unless app_running
 
     process_input(user_input(t("hm.save.msg")), use_reg: true, reg: t("hm.save.reg", prefix: "")).to_i == 2
   end
@@ -117,7 +116,7 @@ class Console
   # @since 0.2.8
   # @version 1.0.0
   def save_session(_args = [])
-    puts "This game uses autosave. Your progress is saved at the end of each turn." # TODO: to textfile
+    puts t("warn.auto_save")
   end
 
   # Handle exit event
@@ -143,5 +142,12 @@ class Console
 
     @app = Hangman.new(self) if args.include?("hangman")
     self.app_running = false
+  end
+
+  # The Easter egg method
+  # @since 0.3.1
+  # @version 1.0.0
+  def just_for_fun(args = [])
+    puts args.join(" ") == "is awesome" ? FUS.t("easter_egg")[0] : FUS.t("easter_egg").sample
   end
 end

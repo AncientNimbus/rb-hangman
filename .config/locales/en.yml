@@ -9,10 +9,18 @@ en:
     * help
   exit:
     bye: "Thank you for playing. 🖖"
+  warn:
+    app_not_running: "Game is not running. Command cancelled"
+    auto_save: "This game uses autosave. Your progress is saved at the end of each turn."
   error:
     file_not_found: "Error! File not found."
-    cmd_not_found: "I don't understand '%{command}'. Try '--help' for available commands."
+    cmd_not_found: "Ops... I don't understand command: '%{command}'. Type '--help' for all available commands."
     app_running: "App is already running, command cancelled!"
+  easter_egg:
+    - "That's right! Congrats on finding the Easter 🥚"
+    - "👍"
+    - "🥷"
+    - "🚀"
   commands:
     exit:
       - exit
@@ -41,7 +49,7 @@ en:
   hm:
     p_name: "Who will be next on the gallows?"
     welcome:
-      resume: "Look who's back %{name}..."
+      resume: "Look! %{name} is back at the gallows again!"
     mode:
       msg: |
         Welcome to Hangman %{name}!

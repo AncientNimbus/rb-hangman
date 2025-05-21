@@ -8,7 +8,7 @@ require_relative "cli_helper"
 # Hangman class
 # @author Ancient Nimbus
 # @since 0.1.0
-# @version 0.3.0
+# @version 0.3.1
 class Hangman
   include FUS
 
@@ -56,7 +56,7 @@ class Hangman
 
     p1.load_save
     self.active_session = p1.resume_session
-    puts cli.t("hm.welcome.resume", { name: p1.name })
+    puts cli.t("hm.welcome.resume", { name: p1.name.colorize(:yellow) })
   end
 
   # @since 0.1.4

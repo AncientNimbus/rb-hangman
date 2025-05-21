@@ -20,23 +20,31 @@ class Player
   end
 
   # @since 0.2.9
-  # @version 1.0.0
+  # @version 1.1.0
   def set_name
     # set player name
-    self.name = cli.process_input(cli.user_input(cli.t("hm.p_name")), use_reg: true,
-                                                                      invalid_msg: cli.t("player.no_name_err"))
-    savefile[:name] = name
+    self.name = cli.process_input(cli.user_input(cli.t("hm.p_name")),
+                                  use_reg: true,
+                                  invalid_msg: cli.t("player.no_name_err")).capitalize
+    refresh_savefile
   end
 
   # @since 0.2.9
-  # @version 1.0.0
+  # @version 1.1.0
   def set_mode
     # set difficulty
     self.mode = cli.process_input(
       cli.user_input(
-        cli.t("hm.mode.msg", { name: name })
+        cli.t("hm.mode.msg", { name: name.colorize(:yellow) })
       ), use_reg: true, reg: cli.t("hm.mode.reg", prefix: ""), invalid_msg: cli.t("hm.mode.err")
     ).to_i
+    refresh_savefile
+  end
+
+  # @since 0.3.1
+  # @version 1.0.0
+  def refresh_savefile
+    savefile[:name] = name
     savefile[:hangman_data][:mode] = mode
   end
 
