@@ -19,14 +19,22 @@ class Player
     @session_counts = sessions.size
   end
 
-  #
+  # Set the name of the player, changing this will affect which save file to load.
   # @since 0.2.6
-  # @version 1.0.0
-  def profile_lookup(load_save)
+  # @version 1.1.0
+  def profile_lookup(load_savefile)
+    # set player name
     self.name = cli.user_input(cli.t("hm.p_name"))
+    savefile[:name] = name
 
-    # TODO: Add a clause to prevent new profile from being loaded in.
-    self
+    if FUS.check_file?(FUS.data_path(name)) || !load_savefile
+      # valid previous user or new player selecting mode 1
+      self
+    else
+      # new player selecting the wrong option or no save found
+      puts "No save found. Switching to new player mode..."
+      nil
+    end
   end
 
   # @since 0.1.1

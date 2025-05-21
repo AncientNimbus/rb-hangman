@@ -13,8 +13,8 @@ require_relative "cli_helper"
 class Hangman
   include FUS
 
-  attr_accessor :p1, :active_session, :lives, :new_char, :prev_char
-  attr_reader :cli, :dict_path, :load_save, :secret_word_obj, :secret_word
+  attr_accessor :p1, :load_save, :active_session, :lives, :new_char, :prev_char
+  attr_reader :cli, :dict_path, :secret_word_obj, :secret_word
 
   # Game mode configurations
   MODE = [7, 6, 5].freeze
@@ -24,10 +24,8 @@ class Hangman
     @cli = console
     cli.app_running = true
     @dict_path = dict_path
+    @active_session = nil
     @p1 = Player.new(console)
-    # @p1 = Player.new(mode: MODE[cli.process_input(
-    #   cli.user_input(cli.t("hm.mode.msg")), use_reg: true, reg: cli.t("hm.mode.reg", prefix: "")
-    # ).to_i - 1], name: cli.user_input(cli.t("hm.p_name")))
 
     @load_save = cli.load_session
 
@@ -39,14 +37,22 @@ class Hangman
   # Set the player of the play session.
   # @since 0.2.6
   # @version 1.0.0
-  def player_profile(load_save)
-    self.p1 = p1.profile_lookup(load_save)
-    p p1
+  def player_profile(load_savefile)
+    profile = p1.profile_lookup(load_savefile)
+    # if profile returns nil, switch back to new user mode otherwise replace p1 with profile
+    profile.nil? ? self.load_save = false : self.p1 = profile
+    # if profile.nil?
+    #   self.load_save = false
+    #   p1
+    # else
+    #   self.p1 = profile
+    # end
   end
 
   # @since 0.1.4
   # @version 1.0.2
   def create_session
+    puts "Welcome to Hangman #{p1.name}"
     @secret_word_obj = FUS.random_word(dict_path)
     { id: p1.session_counts += 1, status: :active, win?: false, word: secret_word_obj[:word],
       remaining_lives: p1.mode, state: Array.new(secret_word_obj[:word].size, "_") }
@@ -58,14 +64,14 @@ class Hangman
     # mode selection
     if load_save
       p1.load_save
-      @active_session = p1.resume_session
+      self.active_session = p1.resume_session
+      puts "Welcome back #{p1.name}"
     end
-    @active_session ||= create_session
+    self.active_session ||= create_session
     @lives = active_session[:remaining_lives]
     @secret_word = active_session[:word]
     @prev_char = ""
     @new_char = ""
-
     p1.save_game(active_session)
 
     # Initial display

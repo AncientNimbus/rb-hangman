@@ -31,7 +31,8 @@ class Console
   # @version 1.0.0
   def run
     puts t("welcome.greeting").colorize(:green)
-    process_input(user_input) while cli_running
+    # process_input(user_input) while cli_running
+    process_input("--play hangman") while cli_running
   end
 
   # Shorthand for FUS.t() method

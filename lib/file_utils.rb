@@ -86,6 +86,13 @@ module FileUtils
       end
     end
 
+    # @since 0.2.8
+    # @version 1.0.0
+    def check_file?(filepath, use_filetype: true, default_type: ".yml")
+      default_type = "" unless use_filetype
+      File.exist?(filepath + default_type)
+    end
+
     # Writes the given data to a file in YAML or JSON format.
     # @param filepath [String] The base path of the file to write (extension is added automatically).
     # @param data [Object] The data to serialize and write.
