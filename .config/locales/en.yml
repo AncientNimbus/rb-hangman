@@ -5,8 +5,13 @@ en:
     intro: "Locale system operational."
     hello_world: "Hello World!"
   help: |
-    Available commands:
-    * help
+    +------+------+------+------+------+------+------+------+------+------+------+------+------+------+------+------+
+    | * Available commands:                                                                                         |
+    | * Help - [-h | --help]              | Display all available commands                                          |
+    + * Play - [-p | --play] [<app name>] | Run an app e.g., '--play hangman'                                       +
+    | * Exit - [-q | --exit | --ttfn]     | Safely close the program                                                |
+    | * Save - [-s | --save]              | Save user data to system, savefile can be found in the data/ directory  |
+    +------+------+------+------+------+------+------+------+------+------+------+------+------+------+------+------+
   exit:
     bye: "Thank you for playing. 🖖"
   warn:

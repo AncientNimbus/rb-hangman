@@ -19,9 +19,9 @@ class Console
     @app_running = false
     @input_is_cmd = false
     @commands = {
-      exit: method(:quit), quit: method(:quit), ttfn: method(:quit),
-      help: method(:show_help), save: method(:save_session),
-      play: method(:play), restart: method(:restart), top: method(:just_for_fun)
+      q: method(:quit), exit: method(:quit), ttfn: method(:quit),
+      h: method(:show_help), help: method(:show_help), s: method(:save_session), save: method(:save_session),
+      p: method(:play), play: method(:play), top: method(:just_for_fun)
     }.transform_keys(&:to_s)
   end
 
@@ -30,8 +30,8 @@ class Console
   # @version 1.0.0
   def run
     puts t("welcome.greeting").colorize(:green)
-    # process_input(user_input) while cli_running
-    process_input("--play hangman") while cli_running
+    process_input(user_input) while cli_running
+    # process_input("-p hangman") while cli_running
   end
 
   # Shorthand for FUS.t() method
@@ -61,7 +61,7 @@ class Console
   # @version 1.3.0
   def process_input(input, use_reg: false, reg: /.*/, invalid_msg: t("console.invalid_warning"))
     self.input_is_cmd = false
-    is_command = input[0..1] == "--"
+    is_command = input[0..1] == "--" || input[0] == "-"
     parts = input.split(" ")
 
     if is_command
@@ -129,9 +129,9 @@ class Console
 
   # Display Commands usage tips
   # @since 0.1.8
-  # @version 1.0.0
+  # @version 1.1.0
   def show_help(_args = [])
-    puts t("help")
+    puts t("help", prefix: "")
   end
 
   # Launch a program
