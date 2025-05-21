@@ -32,6 +32,9 @@ en:
     input_prefix: "> "
     prompt: "Enter your input..."
     invalid_warning: "Invalid input! Please try again!"
+  # player
+  player:
+    no_active_err: "Save loaded but no active session found, creating a new session..."
   # hangman
   hm:
     p_name: "Who will be next on the gallows?"

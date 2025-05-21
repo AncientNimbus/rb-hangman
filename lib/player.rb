@@ -8,8 +8,10 @@ class Player
   include FUS
 
   attr_accessor :name, :mode, :savefile, :sessions, :session_counts
+  attr_reader :cli
 
-  def initialize(name: "Spock", mode: 6)
+  def initialize(console, name: "Spock", mode: 6)
+    @cli = console
     @name = name
     @mode = mode
     new_save
@@ -50,9 +52,10 @@ class Player
 
   # Find the latest session
   # @since 0.1.3
-  # @version 1.0.2
+  # @version 1.1.0
   def resume_session
-    # BUG handle when there is no active to prevent crash
-    sessions.bsearch { |game| game[:status] == :active }
+    session = sessions.bsearch { |game| game[:status] == :active }
+    puts cli.t("player.no_active_err") if session.nil?
+    session
   end
 end

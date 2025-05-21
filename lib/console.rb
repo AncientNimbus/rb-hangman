@@ -99,8 +99,10 @@ class Console
   end
 
   # @since 0.2.3
-  # @version 1.0.0
+  # @version 1.1.0
   def load_session(_args = [])
+    return unless app_running
+
     process_input(user_input(t("hm.save.msg")), use_reg: true, reg: t("hm.save.reg", prefix: "")).to_i == 2
   end
 

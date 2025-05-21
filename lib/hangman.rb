@@ -24,7 +24,7 @@ class Hangman
     @cli = console
     cli.app_running = true
     @dict_path = dict_path
-    @p1 = Player.new
+    @p1 = Player.new(console)
     # @p1 = Player.new(mode: MODE[cli.process_input(
     #   cli.user_input(cli.t("hm.mode.msg")), use_reg: true, reg: cli.t("hm.mode.reg", prefix: "")
     # ).to_i - 1], name: cli.user_input(cli.t("hm.p_name")))
@@ -42,15 +42,14 @@ class Hangman
   end
 
   # @since 0.1.4
-  # @version 1.2.0
+  # @version 1.3.0
   def init_game
     # mode selection
     if load_save
       p1.load_save
       @active_session = p1.resume_session
-    else
-      @active_session = create_session
     end
+    @active_session ||= create_session
     @lives = active_session[:remaining_lives]
     @secret_word = active_session[:word]
     @prev_char = ""
@@ -162,12 +161,7 @@ class Hangman
   end
 end
 
-# @todo resume game state from load save
-# @todo option to choose new game and load game
 # @todo option to save file
-# @todo auto save toggle
-# @todo game mode selection
-# @todo CLI command handling
 # @todo CLI user experience
 # @todo CLI display game state
 # @todo CLI how to play
