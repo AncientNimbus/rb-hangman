@@ -3,13 +3,12 @@
 require "colorize"
 require_relative "file_utils"
 require_relative "player"
-require_relative "logic"
 require_relative "cli_helper"
 
 # Hangman class
 # @author Ancient Nimbus
 # @since 0.1.0
-# @version 1.0.2
+# @version 0.3.0
 class Hangman
   include FUS
 
@@ -17,8 +16,7 @@ class Hangman
   attr_reader :cli, :dict_path, :secret_word_obj, :secret_word
 
   # Game mode configurations
-  MODE = [7, 6, 5].freeze
-  # MODE = { easy: 7, standard: 6, hard: 5 }.freeze
+  MODE = { 1 => 7, 2 => 6, 3 => 5 }.freeze
 
   def initialize(console, dict_path: FUS.assets_path("dictionary.txt"))
     @cli = console
@@ -31,6 +29,8 @@ class Hangman
 
     player_profile(load_save)
 
+    resume_session
+
     init_game
   end
 
@@ -41,32 +41,27 @@ class Hangman
     profile = p1.profile_lookup(load_savefile)
     # if profile returns nil, switch back to new user mode otherwise replace p1 with profile
     profile.nil? ? self.load_save = false : self.p1 = profile
-    # if profile.nil?
-    #   self.load_save = false
-    #   p1
-    # else
-    #   self.p1 = profile
-    # end
   end
 
   # @since 0.1.4
-  # @version 1.0.2
+  # @version 1.1.0
   def create_session
-    puts "Welcome to Hangman #{p1.name}"
     @secret_word_obj = FUS.random_word(dict_path)
     { id: p1.session_counts += 1, status: :active, win?: false, word: secret_word_obj[:word],
-      remaining_lives: p1.mode, state: Array.new(secret_word_obj[:word].size, "_") }
+      remaining_lives: MODE[p1.mode], state: Array.new(secret_word_obj[:word].size, "_") }
+  end
+
+  def resume_session
+    return unless load_save
+
+    p1.load_save
+    self.active_session = p1.resume_session
+    puts cli.t("hm.welcome.resume", { name: p1.name })
   end
 
   # @since 0.1.4
-  # @version 1.3.0
+  # @version 1.4.0
   def init_game
-    # mode selection
-    if load_save
-      p1.load_save
-      self.active_session = p1.resume_session
-      puts "Welcome back #{p1.name}"
-    end
     self.active_session ||= create_session
     @lives = active_session[:remaining_lives]
     @secret_word = active_session[:word]
@@ -81,7 +76,7 @@ class Hangman
   end
 
   # @since 0.1.6
-  # @version 1.1.0
+  # @version 1.2.0
   def print_session
     puts secret_word
     puts
@@ -90,11 +85,11 @@ class Hangman
     # display gallows
     print_gallows
     # display lives
-    puts "#{lives} live#{'s' if lives > 1} remaining"
+    puts "#{lives} live#{'s' if lives > 1} remaining" # TODO: to textfile
   end
 
   def print_gallows
-    puts "Will print hangman stage: #{p1.mode - lives}"
+    puts "Will print hangman stage: #{MODE[p1.mode] - lives}" # TODO: to textfile
   end
 
   # @since 0.2.0
@@ -163,24 +158,12 @@ class Hangman
     response = cli.restart
     return unless response
 
-    @active_session = create_session
-    @lives = active_session[:remaining_lives]
-    @secret_word = active_session[:word]
-    @prev_char = ""
-    @new_char = ""
-
-    p1.save_game(active_session)
-
-    # Initial display
-    print_session
-    # Enter game loop
-    game_loop
+    self.active_session = nil
+    init_game
   end
 end
 
-# @todo option to save file
 # @todo CLI user experience
 # @todo CLI display game state
 # @todo CLI how to play
 # @todo CLI ASCII art
-# @todo

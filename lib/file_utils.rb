@@ -86,6 +86,7 @@ module FileUtils
       end
     end
 
+    # Check if a file exist in the given file path.
     # @since 0.2.8
     # @version 1.0.0
     def check_file?(filepath, use_filetype: true, default_type: ".yml")

@@ -10,7 +10,7 @@ class Player
   attr_accessor :name, :mode, :savefile, :sessions, :session_counts
   attr_reader :cli
 
-  def initialize(console, name: "Spock", mode: 6)
+  def initialize(console, name: "Spock", mode: 1)
     @cli = console
     @name = name
     @mode = mode
@@ -19,22 +19,46 @@ class Player
     @session_counts = sessions.size
   end
 
+  # @since 0.2.9
+  # @version 1.0.0
+  def set_name
+    # set player name
+    self.name = cli.process_input(cli.user_input(cli.t("hm.p_name")), use_reg: true,
+                                                                      invalid_msg: cli.t("player.no_name_err"))
+    savefile[:name] = name
+  end
+
+  # @since 0.2.9
+  # @version 1.0.0
+  def set_mode
+    # set difficulty
+    self.mode = cli.process_input(
+      cli.user_input(
+        cli.t("hm.mode.msg", { name: name })
+      ), use_reg: true, reg: cli.t("hm.mode.reg", prefix: ""), invalid_msg: cli.t("hm.mode.err")
+    ).to_i
+    savefile[:hangman_data][:mode] = mode
+  end
+
   # Set the name of the player, changing this will affect which save file to load.
   # @since 0.2.6
-  # @version 1.1.0
+  # @version 1.2.0
   def profile_lookup(load_savefile)
-    # set player name
-    self.name = cli.user_input(cli.t("hm.p_name"))
-    savefile[:name] = name
+    # Set name
+    set_name
 
-    if FUS.check_file?(FUS.data_path(name)) || !load_savefile
-      # valid previous user or new player selecting mode 1
-      self
-    else
-      # new player selecting the wrong option or no save found
-      puts "No save found. Switching to new player mode..."
-      nil
-    end
+    # valid previous user or new player selecting mode 1
+    return self if FUS.check_file?(FUS.data_path(name))
+
+    # new player selecting the wrong option or no save found
+    puts cli.t("player.no_profile_err") if load_savefile
+
+    # Set mode
+    set_mode
+    # New player
+    return self unless load_savefile
+
+    nil
   end
 
   # @since 0.1.1
@@ -52,10 +76,10 @@ class Player
 
   # Load save from player's disk
   # @since 0.1.4
-  # @version 1.0.1
+  # @version 1.1.0
   def load_save
     self.savefile = FUS.load_file(FUS.data_path(name))
-    overwrite_save
+    # overwrite_save
     @sessions = savefile.dig(:hangman_data, :sessions)
     @session_counts = sessions.size
   end

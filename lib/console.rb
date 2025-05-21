@@ -22,11 +22,11 @@ class Console
       exit: method(:quit), quit: method(:quit), ttfn: method(:quit),
       help: method(:show_help),
       save: method(:save_session), load: method(:load_session),
-      yes: method(:confirm), y: method(:confirm), no: method(:decline), n: method(:decline),
       play: method(:play), restart: method(:restart)
     }.transform_keys(&:to_s)
   end
 
+  # Console wrapper
   # @since 0.1.8
   # @version 1.0.0
   def run
@@ -73,6 +73,7 @@ class Console
     use_reg ? process_regexp(input, reg, invalid_msg) : input
   end
 
+  # Validate and Call command method depending on input value
   # @since 0.1.9
   # @version 1.1.0
   def process_command(command, args = [])
@@ -82,6 +83,7 @@ class Console
     command
   end
 
+  # Handle input where regexp checking is required
   # @since 0.1.9
   # @version 1.2.0
   def process_regexp(input, reg, invalid_msg = t("console.invalid_warning"))
@@ -91,24 +93,34 @@ class Console
     input
   end
 
+  # Handle end game event
   # @since 0.2.2
-  # @version 1.0.0
+  # @version 1.1.0
   def restart(_args = [])
-    return unless app_running
+    return puts "Game is not running. Command cancelled" unless app_running # TODO: to textfile
 
     process_input(user_input(t("hm.next_game.msg")), use_reg: true, reg: t("hm.next_game.reg", prefix: "")) == "yes"
   end
 
+  # Handle load event
   # @since 0.2.3
-  # @version 1.1.0
+  # @version 1.2.0
   def load_session(_args = [])
-    return unless app_running
+    return puts "Game is not running. Command cancelled" unless app_running # TODO: to textfile
 
     process_input(user_input(t("hm.save.msg")), use_reg: true, reg: t("hm.save.reg", prefix: "")).to_i == 2
   end
 
   private
 
+  # Handle save event
+  # @since 0.2.8
+  # @version 1.0.0
+  def save_session(_args = [])
+    puts "This game uses autosave. Your progress is saved at the end of each turn." # TODO: to textfile
+  end
+
+  # Handle exit event
   # @since 0.1.8
   # @version 1.0.0
   def quit(_args = [])
@@ -116,22 +128,12 @@ class Console
     exit
   end
 
+  # Display Commands usage tips
   # @since 0.1.8
   # @version 1.0.0
   def show_help(_args = [])
     puts t("help")
   end
-
-  # @since 0.1.8
-  # @version 1.0.0
-  def save_session(_args = []); end
-
-  # @since 0.1.8
-  # @version 1.0.0
-  def confirm(_args = []); end
-  # @since 0.1.8
-  # @version 1.0.0
-  def decline(_args = []); end
 
   # Launch a program
   # @since 0.1.8
