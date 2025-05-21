@@ -19,6 +19,16 @@ class Player
     @session_counts = sessions.size
   end
 
+  #
+  # @since 0.2.6
+  # @version 1.0.0
+  def profile_lookup(load_save)
+    self.name = cli.user_input(cli.t("hm.p_name"))
+
+    # TODO: Add a clause to prevent new profile from being loaded in.
+    self
+  end
+
   # @since 0.1.1
   # @version 1.1.2
   def new_save

@@ -13,8 +13,8 @@ require_relative "cli_helper"
 class Hangman
   include FUS
 
-  attr_accessor :active_session, :lives, :new_char, :prev_char
-  attr_reader :cli, :dict_path, :p1, :load_save, :secret_word_obj, :secret_word
+  attr_accessor :p1, :active_session, :lives, :new_char, :prev_char
+  attr_reader :cli, :dict_path, :load_save, :secret_word_obj, :secret_word
 
   # Game mode configurations
   MODE = [7, 6, 5].freeze
@@ -30,7 +30,18 @@ class Hangman
     # ).to_i - 1], name: cli.user_input(cli.t("hm.p_name")))
 
     @load_save = cli.load_session
+
+    player_profile(load_save)
+
     init_game
+  end
+
+  # Set the player of the play session.
+  # @since 0.2.6
+  # @version 1.0.0
+  def player_profile(load_save)
+    self.p1 = p1.profile_lookup(load_save)
+    p p1
   end
 
   # @since 0.1.4
