@@ -95,4 +95,4 @@ module CliHelper
 end
 
 # CliHelper Alias
-CLI = CliHelper
+CH = CliHelper
