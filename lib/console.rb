@@ -29,7 +29,7 @@ class Console
   # @since 0.1.8
   # @version 1.0.0
   def run
-    puts t("welcome.greeting").colorize(:green)
+    puts t("welcome.greeting", prefix: "").colorize(:green)
     process_input(user_input) while cli_running
     # process_input("-p hangman") while cli_running
   end
@@ -37,7 +37,7 @@ class Console
   # Shorthand for FUS.t() method
   # @since 0.1.8
   # @version 1.1.0
-  def t(key_path, swaps = {}, locale: "en", prefix: "* ")
+  def t(key_path, swaps = {}, locale: "en", prefix: "\n* ")
     prefix + FUS.t(key_path, swaps, locale: locale)
   end
 
@@ -136,9 +136,11 @@ class Console
 
   # Launch a program
   # @since 0.1.8
-  # @version 1.1.0
+  # @version 1.2.0
   def play(args = [])
     return puts t("error.app_running").colorize(:red) if app_running
+
+    return puts t("error.no_game_name").colorize(:yellow) if args.empty?
 
     @app = Hangman.new(self) if args.include?("hangman")
     self.app_running = false

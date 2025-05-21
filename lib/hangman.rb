@@ -8,7 +8,7 @@ require_relative "cli_helper"
 # Hangman class
 # @author Ancient Nimbus
 # @since 0.1.0
-# @version 0.3.1
+# @version 0.3.2
 class Hangman
   include FUS
 
@@ -25,6 +25,8 @@ class Hangman
     @active_session = nil
     @p1 = Player.new(console)
 
+    boot_screen
+
     @load_save = cli.load_session
 
     player_profile(load_save)
@@ -32,6 +34,10 @@ class Hangman
     resume_session
 
     init_game
+  end
+
+  def boot_screen
+    puts cli.t("boot", prefix: "").colorize(:yellow)
   end
 
   # Set the player of the play session.
@@ -156,14 +162,11 @@ class Hangman
   # @version 1.1.0
   def next_game
     response = cli.restart
-    return unless response
+    return puts cli.t("hm.next_game.exit_msg").colorize(:yellow) unless response
 
     self.active_session = nil
     init_game
   end
 end
 
-# @todo CLI user experience
 # @todo CLI display game state
-# @todo CLI how to play
-# @todo CLI ASCII art
