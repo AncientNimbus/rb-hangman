@@ -8,7 +8,7 @@ require_relative "cli_helper"
 # Hangman class
 # @author Ancient Nimbus
 # @since 0.1.0
-# @version 0.3.2
+# @version 0.3.3
 class Hangman
   include FUS
 
@@ -53,7 +53,7 @@ class Hangman
   # @version 1.1.0
   def create_session
     @secret_word_obj = FUS.random_word(dict_path)
-    { id: p1.session_counts += 1, status: :active, win?: false, word: secret_word_obj[:word],
+    { id: p1.session_counts += 1, status: :active, win?: false, word_id: secret_word_obj[:id],
       remaining_lives: MODE[p1.mode], state: Array.new(secret_word_obj[:word].size, "_") }
   end
 
@@ -70,7 +70,7 @@ class Hangman
   def init_game
     self.active_session ||= create_session
     @lives = active_session[:remaining_lives]
-    @secret_word = active_session[:word]
+    @secret_word = word_lookup(active_session[:word_id])
     @prev_char = ""
     @new_char = ""
     p1.save_game(active_session)
@@ -166,6 +166,12 @@ class Hangman
 
     self.active_session = nil
     init_game
+  end
+
+  # @since 0.3.3
+  # @version 1.0.0
+  def word_lookup(id)
+    FUS.lookup_line(dict_path, id)
   end
 end
 
