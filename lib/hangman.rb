@@ -8,7 +8,7 @@ require_relative "cli_helper"
 # Hangman class
 # @author Ancient Nimbus
 # @since 0.1.0
-# @version 0.3.5
+# @version 1.0.0
 class Hangman
   include FUS
 
