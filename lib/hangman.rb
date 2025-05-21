@@ -142,10 +142,23 @@ class Hangman
   end
 
   # @since 0.2.2
-  # @version 1.0.0
+  # @version 1.1.0
   def next_game
-    input = cli.restart
-    p input
+    response = cli.restart
+    return unless response
+
+    @active_session = create_session
+    @lives = active_session[:remaining_lives]
+    @secret_word = active_session[:word]
+    @prev_char = ""
+    @new_char = ""
+
+    p1.save_game(active_session)
+
+    # Initial display
+    print_session
+    # Enter game loop
+    game_loop
   end
 end
 
