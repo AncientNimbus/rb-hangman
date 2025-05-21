@@ -8,7 +8,7 @@ require_relative "cli_helper"
 # Hangman class
 # @author Ancient Nimbus
 # @since 0.1.0
-# @version 0.3.3
+# @version 0.3.5
 class Hangman
   include FUS
 
@@ -66,7 +66,7 @@ class Hangman
   end
 
   # @since 0.1.4
-  # @version 1.4.0
+  # @version 1.5.0
   def init_game
     self.active_session ||= create_session
     @lives = active_session[:remaining_lives]
@@ -76,26 +76,30 @@ class Hangman
     p1.save_game(active_session)
 
     # Initial display
-    print_session
+    print_session(first: true)
     # Enter game loop
     game_loop
   end
 
   # @since 0.1.6
-  # @version 1.2.0
-  def print_session
-    puts secret_word
+  # @version 1.3.0
+  def print_session(first: true)
+    # puts secret_word
     puts
     # display blanks
-    puts active_session[:state].join(" ")
+    puts "* #{active_session[:state].join(' ').colorize(:light_blue)}"
     # display gallows
-    print_gallows
+    print_gallows(first: first)
     # display lives
-    puts "#{lives} live#{'s' if lives > 1} remaining" # TODO: to textfile
+    # puts "#{lives} live#{'s' if lives > 1} remaining"
   end
 
-  def print_gallows
-    puts "Will print hangman stage: #{MODE[p1.mode] - lives}" # TODO: to textfile
+  # @since 0.3.5
+  # @version 1.0.0
+  def print_gallows(first: false)
+    first = false if lives != MODE[p1.mode]
+    puts
+    puts FUS.t("hm.gallows")[first ? 0 : (-lives - 1)]
   end
 
   # @since 0.2.0
@@ -108,7 +112,7 @@ class Hangman
   end
 
   # @since 0.1.6
-  # @version 1.3.0
+  # @version 1.4.0
   def game_loop
     until active_session[:win?] || lives <= 0
       # get user input + input check
@@ -121,7 +125,7 @@ class Hangman
       # save session
       p1.save_game(active_session)
       # update display
-      print_session
+      print_session(first: false)
     end
     announce_result
   end
