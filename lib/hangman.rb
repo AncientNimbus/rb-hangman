@@ -24,12 +24,12 @@ class Hangman
     @cli = console
     cli.app_running = true
     @dict_path = dict_path
-    # @p1 = Player.new(mode: :standard)
-    @p1 = Player.new(mode: MODE[cli.process_input(
-      cli.user_input(cli.t("hm.mode.msg")), use_reg: true, reg: cli.t("hm.mode.reg", prefix: "")
-    ).to_i - 1], name: cli.user_input(cli.t("hm.p_name")))
+    @p1 = Player.new
+    # @p1 = Player.new(mode: MODE[cli.process_input(
+    #   cli.user_input(cli.t("hm.mode.msg")), use_reg: true, reg: cli.t("hm.mode.reg", prefix: "")
+    # ).to_i - 1], name: cli.user_input(cli.t("hm.p_name")))
 
-    @load_save = false # @todo user prompt
+    @load_save = cli.load_session
     init_game
   end
 
@@ -37,7 +37,7 @@ class Hangman
   # @version 1.0.2
   def create_session
     @secret_word_obj = FUS.random_word(dict_path)
-    { id: p1.session_counts += 1, status: :active, win?: false, word_id: secret_word_obj[:id],
+    { id: p1.session_counts += 1, status: :active, win?: false, word: secret_word_obj[:word],
       remaining_lives: p1.mode, state: Array.new(secret_word_obj[:word].size, "_") }
   end
 
@@ -45,9 +45,14 @@ class Hangman
   # @version 1.2.0
   def init_game
     # mode selection
-    @active_session = load_save ? p1.load_save : create_session
+    if load_save
+      p1.load_save
+      @active_session = p1.resume_session
+    else
+      @active_session = create_session
+    end
     @lives = active_session[:remaining_lives]
-    @secret_word = secret_word_obj[:word]
+    @secret_word = active_session[:word]
     @prev_char = ""
     @new_char = ""
 

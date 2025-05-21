@@ -3,6 +3,7 @@
 require "colorize"
 require_relative "file_utils"
 require_relative "hangman"
+require_relative "player"
 # Console class
 # Centralize command usage and event dispatcher
 #
@@ -30,7 +31,7 @@ class Console
   # @version 1.0.0
   def run
     puts t("welcome.greeting").colorize(:green)
-    process_input("--play hangman") while cli_running
+    process_input(user_input) while cli_running
   end
 
   # Shorthand for FUS.t() method
@@ -97,6 +98,12 @@ class Console
     process_input(user_input(t("hm.next_game.msg")), use_reg: true, reg: t("hm.next_game.reg", prefix: "")) == "yes"
   end
 
+  # @since 0.2.3
+  # @version 1.0.0
+  def load_session(_args = [])
+    process_input(user_input(t("hm.save.msg")), use_reg: true, reg: t("hm.save.reg", prefix: "")).to_i == 2
+  end
+
   private
 
   # @since 0.1.8
@@ -115,9 +122,7 @@ class Console
   # @since 0.1.8
   # @version 1.0.0
   def save_session(_args = []); end
-  # @since 0.1.8
-  # @version 1.0.0
-  def load_session(_args = []); end
+
   # @since 0.1.8
   # @version 1.0.0
   def confirm(_args = []); end

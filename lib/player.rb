@@ -9,7 +9,7 @@ class Player
 
   attr_accessor :name, :mode, :savefile, :sessions, :session_counts
 
-  def initialize(name: "Spock", mode: :standard)
+  def initialize(name: "Spock", mode: 6)
     @name = name
     @mode = mode
     new_save
@@ -21,7 +21,6 @@ class Player
   # @version 1.1.2
   def new_save
     @savefile = { saved_date: Time.now.ceil, name: name, hangman_data: { mode: mode, sessions: [] } }
-    overwrite_save
   end
 
   # Write game save to disk
@@ -36,13 +35,16 @@ class Player
   # @version 1.0.1
   def load_save
     self.savefile = FUS.load_file(FUS.data_path(name))
+    overwrite_save
+    @sessions = savefile.dig(:hangman_data, :sessions)
+    @session_counts = sessions.size
   end
 
   # Add latest session to savefile and store game save to disk
   # @since 0.1.4
   # @version 1.0.1
   def save_game(session_obj)
-    sessions.push(session_obj)
+    sessions[session_counts - 1] = session_obj
     overwrite_save
   end
 
@@ -50,6 +52,7 @@ class Player
   # @since 0.1.3
   # @version 1.0.2
   def resume_session
+    # BUG handle when there is no active to prevent crash
     sessions.bsearch { |game| game[:status] == :active }
   end
 end
