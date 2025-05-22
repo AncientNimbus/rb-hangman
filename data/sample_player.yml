@@ -1,33 +1,49 @@
 ---
-:saved_date: 2025-05-22 13:31:54.000000000 +01:00
+:saved_date: 2025-05-22 15:42:01.000000000 +01:00
 :name: Sample player
 :hangman_data:
-  :mode: 2
+  :mode: 1
   :sessions:
   - :id: 1
     :status: :ended
+    :win?: true
+    :play_set: ab_d_f_h_jklm_o_q_stuvw_yz
+    :word_id: 7271
+    :remaining_lives: 7
+    :state:
+    - e
+    - x
+    - p
+    - e
+    - r
+    - i
+    - e
+    - "n"
+    - c
+    - i
+    - "n"
+    - g
+  - :id: 2
+    :status: :ended
     :win?: false
-    :play_set: bcfhjklmnpqrvwxy
-    :word_id: 1992
+    :play_set: _b__e__hijklmnop___tuvwxy_
+    :word_id: 5981
     :remaining_lives: 0
     :state:
-    - s
     - _
-    - e
     - _
-    - i
-    - a
+    - d
     - _
-    - s
-  - :id: 2
+    - f
+  - :id: 3
     :status: :active
     :win?: false
-    :play_set: bcdfghjklmnpqrstvwxy
-    :word_id: 4660
-    :remaining_lives: 1
+    :play_set: _bcde_ghijk_mno_qr_tuvwxyz
+    :word_id: 3937
+    :remaining_lives: 5
     :state:
     - _
-    - e
-    - _
-    - _
+    - a
+    - l
+    - p
     - _
