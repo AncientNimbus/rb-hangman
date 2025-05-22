@@ -30,7 +30,7 @@ class Console
   # @version 1.0.0
   def run
     puts t("welcome.greeting", prefix: "").colorize(:green)
-    process_input(user_input) while cli_running
+    process_input(user_input, use_reg: false) while cli_running
     # process_input("-q") while cli_running
   end
 
@@ -58,8 +58,8 @@ class Console
   # @return [Object] The result of processing the command, the result of processing the regular expression,
   #   or the original input string.
   # @since 0.1.8
-  # @version 1.3.0
-  def process_input(input, use_reg: false, reg: /.*/, invalid_msg: t("console.invalid_warning"))
+  # @version 1.4.0
+  def process_input(input, use_reg: true, reg: /.*/, invalid_msg: t("console.invalid_warning"))
     self.input_is_cmd = false
     is_command = input[0..1] == "--" || input[0] == "-"
     parts = input.split(" ")
@@ -98,7 +98,7 @@ class Console
   def restart(_args = [])
     return puts t("warn.app_not_running") unless app_running
 
-    process_input(user_input(t("hm.next_game.msg")), use_reg: true, reg: t("hm.next_game.reg", prefix: "")) == "yes"
+    process_input(user_input(t("hm.next_game.msg")), reg: t("hm.next_game.reg", prefix: "")) == "yes"
   end
 
   # Handle load event
@@ -107,7 +107,7 @@ class Console
   def load_session(_args = [])
     return t("warn.app_not_running") unless app_running
 
-    process_input(user_input(t("hm.save.msg")), use_reg: true, reg: t("hm.save.reg", prefix: "")).to_i == 2
+    process_input(user_input(t("hm.save.msg")), reg: t("hm.save.reg", prefix: "")).to_i == 2
   end
 
   private

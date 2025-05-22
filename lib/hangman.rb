@@ -12,7 +12,7 @@ require_relative "cli_helper"
 class Hangman
   include FUS
 
-  attr_accessor :p1, :load_save, :active_session, :play_set, :lives, :new_char
+  attr_accessor :p1, :load_save, :active_session, :play_set, :lives, :c_char
   attr_reader :cli, :dict_path, :s_word_obj, :secret_word
 
   # Game mode configurations
@@ -72,8 +72,7 @@ class Hangman
     @lives = active_session[:remaining_lives]
     @play_set = active_session[:play_set]
     @secret_word = word_lookup(active_session[:word_id])
-    # @prev_char = ""
-    @new_char = ""
+    @c_char = ""
     p1.save_game(active_session)
 
     # Initial display
@@ -93,27 +92,24 @@ class Hangman
   end
 
   # @since 0.3.5
-  # @version 1.1.0
+  # @version 1.2.0
   def print_gallows(first: false)
     first = false if lives != MODE[p1.mode]
     puts
-    # puts FUS.t("hm.gallows")[first ? 0 : (-lives - 1)]
-    puts FUS.t("hm.gallows.#{first ? 7 : lives}", { r1: "A B C" })
+    puts FUS.t("hm.gallows.#{first ? 7 : lives}", { r1: play_set[0..2].upcase.chars.join(" ") })
   end
 
   # @since 0.2.0
-  # @version 1.2.0
+  # @version 1.3.0
   def make_guess
-    self.new_char = cli.process_input(cli.user_input(cli.t("hm.guess.msg")), use_reg: true, reg: /\b[#{play_set}]\b/)
-    # delete_from_set(new_char)
-    # puts cli.t("hm.same_char_warning") if new_char == prev_char
-    new_char
+    self.c_char = cli.process_input(cli.user_input(cli.t("hm.guess.msg")), reg: /\b[#{play_set.gsub('_', '')}]\b/)
+    c_char
   end
 
   # @since 1.1.0
   # @version 1.0.0
   def delete_from_set(char)
-    self.play_set = play_set.delete char
+    self.play_set = play_set.sub(char, "_")
     active_session[:play_set] = play_set
   end
 
@@ -123,8 +119,7 @@ class Hangman
     until active_session[:win?] || lives <= 0
       # get user input + input check
       guess = make_guess
-      delete_from_set(new_char)
-      # self.prev_char = new_char
+      delete_from_set(c_char)
       # validate result
       self.lives -= 1 unless matching_character?(guess)
       # update session data
