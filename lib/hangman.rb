@@ -7,7 +7,7 @@ require_relative "player"
 # Hangman class
 # @author Ancient Nimbus
 # @since 0.1.0
-# @version 1.3.0
+# @version 1.4.0
 class Hangman
   include FUS
 
@@ -75,7 +75,7 @@ class Hangman
   # @since 0.1.6
   # @version 1.5.0
   def print_session(first: true)
-    puts s_word
+    # puts s_word
     # display blanks
     puts "\n* #{active_session[:state].join(' ').colorize(:light_blue)}"
     # display gallows
@@ -98,9 +98,10 @@ class Hangman
   end
 
   # @since 0.2.0
-  # @version 1.4.0
+  # @version 1.5.0
   def make_guess
-    cli.process_input(cli.user_input(cli.t("hm.guess.msg")), reg: /\b[#{play_set.gsub('_', '')}]\b/)
+    cli.process_input(cli.user_input(cli.t("hm.guess.msg")).downcase, reg: /\b[#{play_set.gsub('_', '')}]\b/,
+                                                                      invalid_msg: cli.t("hm.same_char_warning"))
   end
 
   # @since 1.1.0

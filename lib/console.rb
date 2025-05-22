@@ -27,11 +27,10 @@ class Console
 
   # Console wrapper
   # @since 0.1.8
-  # @version 1.0.0
+  # @version 1.1.0
   def run
     puts t("welcome.greeting", prefix: "").colorize(:green)
     process_input(user_input, use_reg: false) while cli_running
-    # process_input("-q") while cli_running
   end
 
   # Shorthand for FUS.t() method
@@ -43,11 +42,11 @@ class Console
 
   # Get user input
   # @since 0.1.8
-  # @version 1.1.0
+  # @version 1.2.0
   def user_input(msg = t("console.prompt"))
     puts msg
     print t("console.input_prefix", prefix: "")
-    gets.chomp
+    gets.chomp.downcase
   end
 
   # Processes user input, determining if it is a command, a regular expression, or plain input.
