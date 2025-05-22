@@ -8,12 +8,12 @@ require_relative "cli_helper"
 # Hangman class
 # @author Ancient Nimbus
 # @since 0.1.0
-# @version 1.0.0
+# @version 1.1.0
 class Hangman
   include FUS
 
-  attr_accessor :p1, :load_save, :active_session, :lives, :new_char, :prev_char
-  attr_reader :cli, :dict_path, :secret_word_obj, :secret_word
+  attr_accessor :p1, :load_save, :active_session, :play_set, :lives, :new_char
+  attr_reader :cli, :dict_path, :s_word_obj, :secret_word
 
   # Game mode configurations
   MODE = { 1 => 7, 2 => 6, 3 => 5 }.freeze
@@ -50,11 +50,11 @@ class Hangman
   end
 
   # @since 0.1.4
-  # @version 1.1.0
+  # @version 1.2.0
   def create_session
-    @secret_word_obj = FUS.random_word(dict_path)
-    { id: p1.session_counts += 1, status: :active, win?: false, word_id: secret_word_obj[:id],
-      remaining_lives: MODE[p1.mode], state: Array.new(secret_word_obj[:word].size, "_") }
+    @s_word_obj = FUS.random_word(dict_path)
+    { id: p1.session_counts += 1, status: :active, win?: false, play_set: FUS.t("hm.set"), word_id: s_word_obj[:id],
+      remaining_lives: MODE[p1.mode], state: Array.new(s_word_obj[:word].size, "_") }
   end
 
   def resume_session
@@ -66,12 +66,13 @@ class Hangman
   end
 
   # @since 0.1.4
-  # @version 1.5.0
+  # @version 1.6.0
   def init_game
     self.active_session ||= create_session
     @lives = active_session[:remaining_lives]
+    @play_set = active_session[:play_set]
     @secret_word = word_lookup(active_session[:word_id])
-    @prev_char = ""
+    # @prev_char = ""
     @new_char = ""
     p1.save_game(active_session)
 
@@ -82,42 +83,48 @@ class Hangman
   end
 
   # @since 0.1.6
-  # @version 1.3.0
+  # @version 1.4.0
   def print_session(first: true)
     # puts secret_word
-    puts
     # display blanks
-    puts "* #{active_session[:state].join(' ').colorize(:light_blue)}"
+    puts "\n* #{active_session[:state].join(' ').colorize(:light_blue)}"
     # display gallows
     print_gallows(first: first)
-    # display lives
-    # puts "#{lives} live#{'s' if lives > 1} remaining"
   end
 
   # @since 0.3.5
-  # @version 1.0.0
+  # @version 1.1.0
   def print_gallows(first: false)
     first = false if lives != MODE[p1.mode]
     puts
-    puts FUS.t("hm.gallows")[first ? 0 : (-lives - 1)]
+    # puts FUS.t("hm.gallows")[first ? 0 : (-lives - 1)]
+    puts FUS.t("hm.gallows.#{first ? 7 : lives}", { r1: "A B C" })
   end
 
   # @since 0.2.0
-  # @version 1.1.0
+  # @version 1.2.0
   def make_guess
-    self.new_char = cli.process_input(cli.user_input(cli.t("hm.guess.msg")),
-                                      use_reg: true, reg: cli.t("hm.guess.reg", prefix: ""))
-    puts cli.t("hm.same_char_warning") if new_char == prev_char
+    self.new_char = cli.process_input(cli.user_input(cli.t("hm.guess.msg")), use_reg: true, reg: /\b[#{play_set}]\b/)
+    # delete_from_set(new_char)
+    # puts cli.t("hm.same_char_warning") if new_char == prev_char
     new_char
   end
 
+  # @since 1.1.0
+  # @version 1.0.0
+  def delete_from_set(char)
+    self.play_set = play_set.delete char
+    active_session[:play_set] = play_set
+  end
+
   # @since 0.1.6
-  # @version 1.4.0
+  # @version 1.5.0
   def game_loop
     until active_session[:win?] || lives <= 0
       # get user input + input check
       guess = make_guess
-      self.prev_char = new_char
+      delete_from_set(new_char)
+      # self.prev_char = new_char
       # validate result
       self.lives -= 1 unless matching_character?(guess)
       # update session data
@@ -178,5 +185,3 @@ class Hangman
     FUS.lookup_line(dict_path, id)
   end
 end
-
-# @todo CLI display game state
