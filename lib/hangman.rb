@@ -3,12 +3,11 @@
 require "colorize"
 require_relative "file_utils"
 require_relative "player"
-require_relative "cli_helper"
 
 # Hangman class
 # @author Ancient Nimbus
 # @since 0.1.0
-# @version 1.1.0
+# @version 1.2.0
 class Hangman
   include FUS
 
@@ -92,11 +91,21 @@ class Hangman
   end
 
   # @since 0.3.5
-  # @version 1.2.0
+  # @version 1.3.0
   def print_gallows(first: false)
     first = false if lives != MODE[p1.mode]
+    # format_row = ->(r_num, min, max, set = play_set) { { "r#{r_num}" => set[min..max].upcase.chars.join(" ") } }
+    format_rows = lambda { |r_num, min, max, set = play_set|
+      count = 0
+      obj = {}
+      r_num.times do
+        obj["r#{count + 1}"] = set[min[count]..max[count]].upcase.chars.join(" ")
+        count += 1
+      end
+      obj
+    }
     puts
-    puts FUS.t("hm.gallows.#{first ? 7 : lives}", { r1: play_set[0..2].upcase.chars.join(" ") })
+    puts FUS.t("hm.gallows.#{first ? 7 : lives}", format_rows.call(6, [0, 3, 7, 13, 19, 23], [2, 6, 12, 18, 22, 25]))
   end
 
   # @since 0.2.0

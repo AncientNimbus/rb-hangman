@@ -29,13 +29,12 @@ class Player
   end
 
   # @since 0.2.9
-  # @version 1.1.1
+  # @version 1.1.2
   def set_mode
     # set difficulty
     self.mode = cli.process_input(
-      cli.user_input(
-        cli.t("hm.mode.msg", { name: name.colorize(:yellow) })
-      ), reg: cli.t("hm.mode.reg", prefix: ""), invalid_msg: cli.t("hm.mode.err")
+      cli.user_input(cli.t("hm.mode.msg", { name: name.colorize(:yellow) })),
+      reg: cli.t("hm.mode.reg", prefix: ""), invalid_msg: cli.t("hm.mode.err")
     ).to_i
     refresh_savefile
   end
