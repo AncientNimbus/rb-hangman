@@ -1,3 +1,4 @@
 .yardoc/*
 doc/*
 data/*
+!data/sample_player.yml
